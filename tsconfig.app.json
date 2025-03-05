@@ -1,4 +1,4 @@
-{
+{ 
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "target": "ES2020",
@@ -10,7 +10,8 @@
     "paths": {
       "@/*": [
         "./src/*"
-      ]
+      ],
+      "@runno/runtime": ["./node_modules/@runno/runtime"]
     },
 
     /* Bundler mode */
