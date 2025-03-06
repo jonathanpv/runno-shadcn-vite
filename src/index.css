@@ -164,6 +164,58 @@
   --syntax-operator-color: oklch(0.3 0.01 350);
 }
 
+.green-light {
+  --background: oklch(0.98 0.05 140);
+  --foreground: oklch(0.2 0.05 140);
+  --card: oklch(0.98 0.05 140);
+  --card-foreground: oklch(0.2 0.05 140);
+  --popover: oklch(0.98 0.05 140);
+  --popover-foreground: oklch(0.2 0.05 140);
+  --primary: oklch(0.5 0.15 140);
+  --primary-foreground: oklch(0.98 0.03 140);
+  --secondary: oklch(0.9 0.05 140);
+  --secondary-foreground: oklch(0.4 0.1 140);
+  --muted: oklch(0.9 0.05 140);
+  --muted-foreground: oklch(0.6 0.08 140);
+  --accent: oklch(0.9 0.05 140);
+  --accent-foreground: oklch(0.4 0.1 140);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --border: oklch(0.85 0.07 140);
+  --input: oklch(0.85 0.07 140);
+  --ring: oklch(0.6 0.15 140);
+  --chart-1: oklch(0.5 0.15 140);
+  --chart-2: oklch(0.6 0.12 180);
+  --chart-3: oklch(0.5 0.15 220);
+  --chart-4: oklch(0.6 0.15 100);
+  --chart-5: oklch(0.6 0.15 60);
+  --sidebar: oklch(0.95 0.06 140);
+  --sidebar-foreground: oklch(0.2 0.05 140);
+  --sidebar-primary: oklch(0.5 0.15 140);
+  --sidebar-primary-foreground: oklch(0.98 0.03 140);
+  --sidebar-accent: oklch(0.9 0.05 140);
+  --sidebar-accent-foreground: oklch(0.4 0.1 140);
+  --sidebar-border: oklch(0.85 0.07 140);
+  --sidebar-ring: oklch(0.6 0.15 140);
+
+  /* Syntax highlighting for green-light theme */
+  --syntax-bg-color: oklch(0.95 0.05 140);
+  --syntax-text-color: oklch(0.2 0.05 140);
+  --syntax-font-family: Consolas, Monaco, 'Courier New', monospace;
+  --syntax-font-size: 0.9rem;
+  --syntax-line-height: 1.6;
+  --syntax-padding: 1rem;
+  --syntax-border-radius: 0.375rem;
+  --syntax-comment-color: oklch(0.5 0.1 140);
+  --syntax-punctuation-color: oklch(0.3 0.05 140);
+  --syntax-keyword-color: oklch(0.4 0.2 180);
+  --syntax-string-color: oklch(0.5 0.2 80);
+  --syntax-function-color: oklch(0.45 0.15 200);
+  --syntax-boolean-color: oklch(0.4 0.2 180);
+  --syntax-number-color: oklch(0.5 0.15 100);
+  --syntax-operator-color: oklch(0.3 0.05 140);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

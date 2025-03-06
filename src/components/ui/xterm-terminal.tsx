@@ -2,6 +2,7 @@ import React, { useRef, useState, useLayoutEffect, useCallback, useEffect } from
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import 'xterm/css/xterm.css';
+import { useTheme } from "@/components/theme-provider";
 
 interface XtermTerminalProps {
   output?: string;
@@ -16,6 +17,9 @@ function XTermTerminal({
   isRunning = false,
   isError = false
 }: XtermTerminalProps) {
+  // Add theme awareness
+  const { theme } = useTheme();
+  
   // Refs for DOM elements and terminal instance
   const terminalRef = useRef<HTMLDivElement>(null);
   const xtermRef = useRef<Terminal | null>(null);
@@ -35,19 +39,22 @@ function XTermTerminal({
     if (!terminalRef.current || xtermRef.current) return;
     
     console.log('XTermTerminal: Creating new terminal instance');
-    // Get computed colors from CSS variables
+    
+    // Get computed styles to read current CSS variables
     const computedStyle = getComputedStyle(document.documentElement);
-    const backgroundColor = computedStyle.getPropertyValue('--syntax-bg-color');
-    const foregroundColor = computedStyle.getPropertyValue('--syntax-text-color');
+    const bgColor = computedStyle.getPropertyValue('--syntax-bg-color').trim();
+    const textColor = computedStyle.getPropertyValue('--syntax-text-color').trim();
+    
+    console.log('XTermTerminal: Using colors:', { bgColor, textColor });
     
     const terminal = new Terminal({
       cursorBlink: true,
       fontFamily: 'monospace',
       fontSize: 14,
       theme: {
-        background: backgroundColor,
-        foreground: foregroundColor,
-        cursor: foregroundColor
+        background: bgColor || 'var(--syntax-bg-color)',
+        foreground: textColor || 'var(--syntax-text-color)',
+        cursor: textColor || 'var(--syntax-text-color)'
       },
       rows: 10,
       cols: 80,
@@ -307,12 +314,66 @@ function XTermTerminal({
     };
   }, [setupResizeObserver, processOutput]);
 
+  // Update terminal theme when theme context changes
+  useEffect(() => {
+    // If terminal exists, destroy and recreate it to fully apply the theme
+    if (xtermRef.current) {
+      // Save any current content to restore after recreation
+      const currentContent = output || lastOutputRef.current;
+      const tempContainer = terminalRef.current;
+      
+      // Dispose the current terminal
+      xtermRef.current.dispose();
+      xtermRef.current = null;
+      fitAddonRef.current = null;
+      
+      // Clear container contents
+      if (tempContainer) {
+        while (tempContainer.firstChild) {
+          tempContainer.removeChild(tempContainer.firstChild);
+        }
+      }
+      
+      // Small delay to ensure DOM is ready
+      setTimeout(() => {
+        // Initialize a new terminal
+        initializeTerminal();
+        
+        // Restore content if needed
+        if (currentContent && currentContent.length > 0 && xtermRef.current) {
+          let formattedOutput = currentContent
+            .replace(/\r\n/g, '\n')
+            .replace(/\r/g, '\n');
+          
+          // Apply error formatting if needed
+          if (isError && !formattedOutput.includes('\x1b[')) {
+            formattedOutput = `\x1b[31m${formattedOutput}\x1b[0m`;
+          }
+          
+          xtermRef.current.write(formattedOutput);
+          
+          // Fit after writing content
+          setTimeout(() => {
+            if (fitAddonRef.current) {
+              try {
+                fitAddonRef.current.fit();
+              } catch (e) {
+                console.warn('Error fitting terminal after recreation:', e);
+              }
+            }
+          }, 50);
+        }
+      }, 20);
+    }
+  }, [theme, initializeTerminal, output, isError]); // Re-run when theme changes
+
   return (
     <div 
       ref={terminalRef} 
       className="w-full h-full relative"
       style={{ 
         backgroundColor: 'var(--syntax-bg-color)',
+        color: 'var(--syntax-text-color)',
         borderRadius: '0.375rem',
         overflow: 'hidden',
         fontFeatureSettings: '"liga" 0',

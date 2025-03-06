@@ -9,6 +9,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
+import { ModeToggle } from '@/components/mode-toggle';
 
 // Example problem for testing
 const exampleProblem = getProblemById('two-sum');
@@ -31,18 +32,24 @@ export default function CodePlayground2() {
 
   return (
     <div className="w-full h-full flex flex-col">
-      <h1 className="text-2xl font-bold mb-4">
-        {currentProblem?.title || 'Code Playground'}
-        {currentProblem?.difficulty && (
-          <span className={`ml-2 px-2 py-1 text-sm rounded-md ${
-            currentProblem.difficulty === 'easy' ? 'bg-green-100 text-green-800' :
-            currentProblem.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-            'bg-red-100 text-red-800'
-          }`}>
-            {currentProblem.difficulty.charAt(0).toUpperCase() + currentProblem.difficulty.slice(1)}
-          </span>
-        )}
-      </h1>
+      <div className="flex w-full justify-between">
+        <h1 className="text-2xl font-bold mb-4">
+          {currentProblem?.title || 'Code Playground'}
+          {currentProblem?.difficulty && (
+            <span className={`ml-2 px-2 py-1 text-sm rounded-md ${
+              currentProblem.difficulty === 'easy' ? 'bg-green-100 text-green-800' :
+              currentProblem.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+              'bg-red-100 text-red-800'
+            }`}>
+              {currentProblem.difficulty.charAt(0).toUpperCase() + currentProblem.difficulty.slice(1)}
+            </span>
+          )}
+        </h1>
+
+        <ModeToggle></ModeToggle>
+      </div>
+      
+      
       
       {/* Problem selector */}
       <ProblemSelector />

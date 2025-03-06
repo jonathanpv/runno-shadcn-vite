@@ -15,17 +15,16 @@
 import { Button } from '@/components/ui/button';
 import { TestCase } from '@/components/ui/test-case';
 import { useRunnoStore } from '@/stores/runno-store';
-import { CheckCircleIcon } from 'lucide-react';
+import { CheckCircleIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 import { useState } from 'react';
 import { checkCode } from '@/lib/runno-headless';
 import { TestCaseState } from '@/stores/runno-store';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
 
-// Add interface for component props
 interface TestResultsProps {
   testCases: TestCaseState[];
 }
 
-// Update function signature to accept props
 function TestResults({ testCases }: TestResultsProps) {
   const { code } = useRunnoStore();
   const [isChecking, setIsChecking] = useState(false);
@@ -38,22 +37,30 @@ function TestResults({ testCases }: TestResultsProps) {
       setIsChecking(false);
     }
   };
-  
+
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Requirements</h3>
-        <Button 
-          onClick={handleCheckAll} 
-          disabled={isChecking || !code.trim()}
-          className="flex items-center"
-        >
-          <CheckCircleIcon className="mr-2 h-4 w-4" />
-          {isChecking ? 'Checking...' : 'Check All'}
-        </Button>
-      </div>
+    <Card className="gap-2 bg-background border-border shadow-sm">
+      <CardHeader className=" space-y-0">
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center justify-between w-full">
+            <h3 className="text-sm font-medium text-foreground">Requirements</h3>
+            
+            <Button 
+              onClick={handleCheckAll} 
+              disabled={isChecking || !code.trim()}
+              variant="default"
+              size="sm"
+              className="h-7 bg-primary text-primary-foreground hover:bg-primary/90 text-xs px-2"
+            >
+              <CheckCircleIcon className="mr-1 h-3 w-3" />
+              {isChecking ? 'Checking...' : 'Check All'}
+            </Button>
+          </div>
+        </div>
+      </CardHeader>
       
-      <div className="space-y-4">
+      <CardContent className="space-y-2">
+        <div className="border-t border-primary"></div>
         {testCases.map((tc) => (
           <TestCase 
             key={tc.id} 
@@ -61,8 +68,8 @@ function TestResults({ testCases }: TestResultsProps) {
             description={tc.description} 
           />
         ))}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 
