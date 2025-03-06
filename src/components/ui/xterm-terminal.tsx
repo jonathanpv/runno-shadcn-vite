@@ -1,4 +1,4 @@
-import React, { useRef, useState, useLayoutEffect, useCallback, useEffect } from 'react';
+import { useRef, useLayoutEffect, useCallback, useEffect } from 'react';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import 'xterm/css/xterm.css';

@@ -1,4 +1,3 @@
-import React from 'react';
 import { useRunnoStore } from '@/stores/runno-store';
 import { getProblemsArray } from '@/lib/problems';
 import { format } from 'date-fns';

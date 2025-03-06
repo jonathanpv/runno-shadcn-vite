@@ -15,7 +15,7 @@
 import { Button } from '@/components/ui/button';
 import { TestCase } from '@/components/ui/test-case';
 import { useRunnoStore } from '@/stores/runno-store';
-import { CheckCircleIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
+import { CheckCircleIcon } from 'lucide-react';
 import { useState } from 'react';
 import { checkCode } from '@/lib/runno-headless';
 import { TestCaseState } from '@/stores/runno-store';

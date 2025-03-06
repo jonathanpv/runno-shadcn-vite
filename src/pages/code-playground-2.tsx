@@ -11,9 +11,6 @@ import {
 } from "@/components/ui/resizable";
 import { ModeToggle } from '@/components/mode-toggle';
 
-// Example problem for testing
-const exampleProblem = getProblemById('two-sum');
-
 export default function CodePlayground2() {
   const { 
     currentProblem,

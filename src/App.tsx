@@ -1,6 +1,4 @@
 // import { Button } from "@/components/ui/button"
-import { ModeToggle } from "./components/mode-toggle"
-import CodePlayground from "./pages/code-playground"
 import CodePlayground2 from "./pages/code-playground-2"
 
 function App() {

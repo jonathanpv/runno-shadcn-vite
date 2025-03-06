@@ -117,8 +117,10 @@ export async function checkCode(code: string): Promise<void> {
         }
       }
       
-      // Run the modified code
+      // Prepare stdin from test case
       const stdin = testCase.stdin ? testCase.stdin + '\n' : '';
+      
+      // Run the modified code
       const result = await executor(codeToRun, stdin);
       
       // Store the complete result
@@ -208,7 +210,7 @@ export async function checkCppCode(code: string): Promise<void> {
       const stdin = testCase.stdin ? testCase.stdin + '\n' : '';
       
       // In C++ mode, after compilation, we run with the //-run flag
-      const result = await headlessRunCode("clangpp", `//-run\n${code}`);
+      const result = await headlessRunCode("clangpp", `//-run\n${code}`, stdin);
       
       setResults(testCase.id, result as CompleteResult);
       

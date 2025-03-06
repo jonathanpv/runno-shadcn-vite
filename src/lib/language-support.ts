@@ -46,7 +46,7 @@ export const supportedLanguages = {
   export function getHeadlessExecutor(language: LanguageKey) {
     const { needsCompilation } = supportedLanguages[language];
     
-    return async (code: string, stdin: string) => {
+    return async (code: string, stdin?: string) => {
       if (needsCompilation) {
         // For languages that need compilation (like C++)
         const compileResult = await headlessRunCode(
@@ -60,11 +60,12 @@ export const supportedLanguages = {
         
         return headlessRunCode(
           language, 
-          `//-run\n${code}`
+          `//-run\n${code}`,
+          stdin
         );
       } else {
         // For interpreted languages
-        const result = await headlessRunCode(language, code);
+        const result = await headlessRunCode(language, code, stdin);
         
         // Fix for Python "None" issue - if we have a result object with stdout="None"
         // and the code contains print statements, we might need to fix the output

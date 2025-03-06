@@ -5,7 +5,6 @@ import { defineConfig } from "vite"
 import type { ViteDevServer } from 'vite'
 import type { IncomingMessage, ServerResponse } from 'http'
 import type { NextFunction } from 'connect'
-import typography from "@tailwindcss/typography"
 
 // This plugin configures the necessary headers for cross-origin isolation
 // which is required for SharedArrayBuffer used by Runno

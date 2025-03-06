@@ -24,7 +24,6 @@ export function RightPane() {
     testCases,
     addTestCase,
     setTestStatus,
-    setResults,
     resetToStarterCode,
     updateProblemProgress,
     currentProblem
@@ -45,7 +44,7 @@ export function RightPane() {
       console.log('runCode: Getting executor for language:', activeLanguage);
       const executor = getHeadlessExecutor(activeLanguage);
       console.log('runCode: Executing code, length:', code.length);
-      const result = await executor(code, '');
+      const result = await executor(code);
       console.log('runCode: Execution complete, result type:', result.resultType);
       console.log('runCode: Result details:', {
         stdout: result.resultType === "complete" ? result.stdout : undefined,
