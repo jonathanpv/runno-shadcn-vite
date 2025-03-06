@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @plugin "tailwindcss-animate";
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -38,6 +39,24 @@
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.705 0.015 286.067);
+
+
+  /* this is the editor styles */
+  --syntax-bg-color: oklch(0.98 0 0);
+  --syntax-text-color: oklch(0.2 0.001 286);
+  --syntax-font-family: Consolas, Monaco, 'Courier New', monospace;
+  --syntax-font-size: 0.9rem;
+  --syntax-line-height: 1.6;
+  --syntax-padding: 1rem;
+  --syntax-border-radius: 0.375rem;
+  --syntax-comment-color: oklch(0.5 0.05 286);
+  --syntax-punctuation-color: oklch(0.3 0.001 286);
+  --syntax-keyword-color: oklch(0.4 0.15 250);
+  --syntax-string-color: oklch(0.5 0.2 30);
+  --syntax-function-color: oklch(0.4 0.15 90);
+  --syntax-boolean-color: oklch(0.4 0.15 250);
+  --syntax-number-color: oklch(0.45 0.15 140);
+  --syntax-operator-color: oklch(0.3 0.001 286);
 }
 
 .dark {
@@ -73,6 +92,76 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(0.274 0.006 286.033);
   --sidebar-ring: oklch(0.442 0.017 285.786);
+
+  
+  --syntax-bg-color: oklch(0.21 0.006 285.885);
+  --syntax-text-color: oklch(0.985 0 0);
+  --syntax-font-family: Consolas, Monaco, 'Courier New', monospace;
+  --syntax-font-size: 0.9rem;
+  --syntax-line-height: 1.6;
+  --syntax-padding: 1rem;
+  --syntax-border-radius: 0.375rem;
+  --syntax-comment-color: oklch(0.705 0.015 286.067);
+  --syntax-punctuation-color: oklch(0.985 0 0);
+  --syntax-keyword-color: oklch(0.488 0.243 264.376);
+  --syntax-string-color: oklch(0.769 0.188 70.08);
+  --syntax-function-color: oklch(0.645 0.246 16.439);
+  --syntax-boolean-color: oklch(0.488 0.243 264.376);
+  --syntax-number-color: oklch(0.627 0.265 303.9);
+  --syntax-operator-color: oklch(0.985 0 0);
+}
+
+.pink-light {
+  --background: oklch(0.98 0.03 350);
+  --foreground: oklch(0.2 0.01 350);
+  --card: oklch(0.98 0.03 350);
+  --card-foreground: oklch(0.2 0.01 350);
+  --popover: oklch(0.98 0.03 350);
+  --popover-foreground: oklch(0.2 0.01 350);
+  --primary: oklch(0.7 0.15 350);
+  --primary-foreground: oklch(0.98 0.03 350);
+  --secondary: oklch(0.9 0.05 350);
+  --secondary-foreground: oklch(0.5 0.1 350);
+  --muted: oklch(0.9 0.05 350);
+  --muted-foreground: oklch(0.6 0.08 350);
+  --accent: oklch(0.9 0.05 350);
+  --accent-foreground: oklch(0.5 0.1 350);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --border: oklch(0.85 0.07 350);
+  --input: oklch(0.85 0.07 350);
+  --ring: oklch(0.7 0.15 350);
+  --chart-1: oklch(0.7 0.15 350);
+  --chart-2: oklch(0.6 0.12 320);
+  --chart-3: oklch(0.5 0.1 290);
+  --chart-4: oklch(0.65 0.15 20);
+  --chart-5: oklch(0.6 0.15 50);
+  --sidebar: oklch(0.95 0.04 350);
+  --sidebar-foreground: oklch(0.2 0.01 350);
+  --sidebar-primary: oklch(0.7 0.15 350);
+  --sidebar-primary-foreground: oklch(0.98 0.03 350);
+  --sidebar-accent: oklch(0.9 0.05 350);
+  --sidebar-accent-foreground: oklch(0.5 0.1 350);
+  --sidebar-border: oklch(0.85 0.07 350);
+  --sidebar-ring: oklch(0.7 0.15 350);
+
+
+
+  --syntax-bg-color: oklch(0.95 0.05 350);
+  --syntax-text-color: oklch(0.3 0.08 350);
+  --syntax-font-family: Consolas, Monaco, 'Courier New', monospace;
+  --syntax-font-size: 0.9rem;
+  --syntax-line-height: 1.6;
+  --syntax-padding: 1rem;
+  --syntax-border-radius: 0.375rem;
+  --syntax-comment-color: oklch(0.5 0.1 320);
+  --syntax-punctuation-color: oklch(0.3 0.01 350);
+  --syntax-keyword-color: oklch(0.6 0.15 350);
+  --syntax-string-color: oklch(0.6 0.12 20);
+  --syntax-function-color: oklch(0.65 0.1 300);
+  --syntax-boolean-color: oklch(0.6 0.15 350);
+  --syntax-number-color: oklch(0.55 0.1 50);
+  --syntax-operator-color: oklch(0.3 0.01 350);
 }
 
 @theme inline {
@@ -122,4 +211,3 @@
     @apply bg-background text-foreground;
   }
 }
-

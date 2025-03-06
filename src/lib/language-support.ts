@@ -13,6 +13,8 @@
  * This module handles language-specific configurations and behaviors
  */
 
+import { headlessRunCode } from '@runno/runtime';
+
 // Define supported languages and their configurations
 export const supportedLanguages = {
     python: {
@@ -44,27 +46,54 @@ export const supportedLanguages = {
   export function getHeadlessExecutor(language: LanguageKey) {
     const { needsCompilation } = supportedLanguages[language];
     
-    return async (runElement: any, code: string, stdin: string) => {
+    return async (code: string, stdin: string) => {
       if (needsCompilation) {
         // For languages that need compilation (like C++)
-        const compileResult = await runElement.headlessRunCode(
+        const compileResult = await headlessRunCode(
           language, 
-          `//-compile\n${code}`, 
-          ""
+          `//-compile\n${code}`
         );
         
-        if (compileResult.exitCode !== 0) {
+        if (compileResult.resultType === "complete" && compileResult.exitCode !== 0) {
           return compileResult;
         }
         
-        return runElement.headlessRunCode(
+        return headlessRunCode(
           language, 
-          `//-run\n${code}`, 
-          stdin
+          `//-run\n${code}`
         );
       } else {
         // For interpreted languages
-        return runElement.headlessRunCode(language, code, stdin);
+        const result = await headlessRunCode(language, code);
+        
+        // Fix for Python "None" issue - if we have a result object with stdout="None"
+        // and the code contains print statements, we might need to fix the output
+        if (language === 'python' && 
+            result.resultType === 'complete' && 
+            result.stdout === 'None' &&
+            code.includes('print(')) {
+          
+          // Try running again with a wrapper that captures print output properly
+          const wrappedCode = `
+import sys
+from io import StringIO
+
+# Capture stdout
+old_stdout = sys.stdout
+sys.stdout = mystdout = StringIO()
+
+# Run the user code
+${code}
+
+# Restore stdout and get the captured output
+sys.stdout = old_stdout
+print(mystdout.getvalue())
+`;
+          
+          return headlessRunCode(language, wrappedCode);
+        }
+        
+        return result;
       }
     };
   }

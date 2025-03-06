@@ -17,82 +17,66 @@
  *    with our Zustand store.
  */
 
-import { useEffect, useRef, useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlayIcon, OctagonXIcon } from 'lucide-react';
 import { useRunnoStore } from '@/stores/runno-store';
+import { CodeMirrorEditor } from '@/components/ui/code-mirror-editor';
+import { XtermTerminal } from '@/components/ui/xterm-terminal';
+import { LanguageKey } from '@/lib/language-support';
+import { headlessRunCode } from '@runno/runtime';
 
 interface CodeEditorProps {
   defaultCode?: string;
-  language?: string;
+  language?: LanguageKey;
   id: string;
 }
 
 export function CodeEditor({ defaultCode = '', language = 'python', id }: CodeEditorProps) {
   const [isRunning, setIsRunning] = useState(false);
   const [output, setOutput] = useState('');
-  const editorRef = useRef<HTMLDivElement>(null);
-  const runtimeRef = useRef<any>(null);
-  const { setCode } = useRunnoStore();
+  const [userInput, setUserInput] = useState('');
+  const { code } = useRunnoStore();
   
-  useEffect(() => {
-    // Import Runno runtime dynamically to avoid SSR issues
-    import('@runno/runtime').then(({ RunElement }) => {
-      if (!editorRef.current) return;
-      
-      // Create a new Runno element
-      const runElement = document.createElement('runno-run') as HTMLElement & InstanceType<typeof RunElement>;
-      runElement.setAttribute('runtime', language);
-      runElement.setAttribute('editor', '');
-      runElement.style.height = '400px';
-      runElement.style.width = '100%';
-      
-      // Set the initial code
-      runElement.innerHTML = defaultCode;
-      
-      // Save a reference for later use
-      runtimeRef.current = runElement;
-      
-      // Append to the DOM
-      editorRef.current.appendChild(runElement);
-      
-      // Listen for changes and update the store
-      runElement.addEventListener('change', async () => {
-        const code = await runElement.getEditorProgram();
-        setCode(code);
-      });
-      
-      // Listen for output
-      runElement.addEventListener('output', (event: any) => {
-        setOutput(event.detail.output);
-      });
-      
-      // Listen for run state changes
-      runElement.addEventListener('run', () => setIsRunning(true));
-      runElement.addEventListener('stop', () => setIsRunning(false));
-      
-      // Initialize the store with the default code
-      setCode(defaultCode);
-    });
+  // Handle running the code
+  const handleRun = async () => {
+    if (isRunning) {
+      setIsRunning(false);
+      setOutput(prev => prev + '\n[Program terminated]\n');
+      return;
+    }
     
-    // Cleanup on unmount
-    return () => {
-      if (editorRef.current && runtimeRef.current) {
-        editorRef.current.removeChild(runtimeRef.current);
-      }
-    };
-  }, [defaultCode, language, setCode]);
-  
-  const handleRun = () => {
-    if (runtimeRef.current) {
-      if (isRunning) {
-        runtimeRef.current.stop();
+    setIsRunning(true);
+    setOutput(''); // Clear previous output
+    
+    try {
+      // Use the headlessRunCode function directly instead of creating a RunElement
+      const result = await headlessRunCode(language, code);
+      
+      // Process the result
+      if (result.resultType === 'complete') {
+        setOutput(result.stdout || result.tty);
+      } else if (result.resultType === 'crash') {
+        setOutput(`Error: ${result.error.message}`);
       } else {
-        runtimeRef.current.run();
+        setOutput('Program was terminated');
       }
+      
+      setIsRunning(false);
+    } catch (error) {
+      setOutput(`Runtime error: ${error instanceof Error ? error.message : String(error)}`);
+      setIsRunning(false);
     }
   };
+  
+  // Handle terminal input
+  const handleTerminalInput = useCallback((input: string) => {
+    setUserInput(input);
+    // Here you would send this input to the running process
+    // For now, we'll just echo it back
+    setOutput(prev => prev + `\nYou entered: ${input}\n`);
+  }, []);
   
   return (
     <Card className="mb-6">
@@ -116,16 +100,19 @@ export function CodeEditor({ defaultCode = '', language = 'python', id }: CodeEd
           </Button>
         </div>
         
-        <div ref={editorRef} className="border rounded-md overflow-hidden" />
+        <CodeMirrorEditor 
+          defaultCode={defaultCode}
+          language={language}
+        />
         
-        {output && (
-          <div className="mt-4">
-            <h4 className="text-sm font-medium mb-2">Output</h4>
-            <pre className="bg-black text-white p-3 rounded-md text-sm overflow-x-auto">
-              {output}
-            </pre>
-          </div>
-        )}
+        <div className="mt-4">
+          <h4 className="text-sm font-medium mb-2">Output</h4>
+          <XtermTerminal 
+            output={output}
+            onInput={handleTerminalInput}
+            isRunning={isRunning}
+          />
+        </div>
       </CardContent>
     </Card>
   );

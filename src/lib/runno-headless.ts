@@ -17,35 +17,109 @@
  *    with special flags to the Runno runtime.
  */
 
-import { RunElement } from '@runno/runtime';
+import { headlessRunCode } from '@runno/runtime';
 import { useRunnoStore } from '@/stores/runno-store';
 import { CompleteResult } from '@runno/runtime';
+import { getHeadlessExecutor } from '@/lib/language-support';
 
 /**
  * This function is responsible for running a program headlessly and evaluating the results.
- * It leverages Runno's headless execution capabilities to:
- * 1. Run code without a visible terminal
- * 2. Process input from test cases
- * 3. Compare output to expected results
+ * It uses the active language from the store for execution.
  */
 export async function checkCode(code: string): Promise<void> {
   // Get the store state and methods
-  const { testCases, setTestStatus, setResults } = useRunnoStore.getState();
-  
-  // Create a hidden Runno element for headless execution
-  const runElement = document.createElement('runno-run') as RunElement;
-  runElement.style.display = 'none';
-  document.body.appendChild(runElement);
+  const { testCases, activeLanguage, setTestStatus, setResults, currentProblem } = useRunnoStore.getState();
   
   try {
+    // Get the appropriate executor for the current language
+    const executor = getHeadlessExecutor(activeLanguage);
+    
     // Process each test case in sequence
     for (const testCase of testCases) {
       // Set test status to checking
       setTestStatus(testCase.id, 'checking');
       
-      // Run the code headlessly
+      // Prepare the code to run based on current problem and test case
+      let codeToRun = code;
+      
+      // Modify the code for each test case if the problem requires it
+      if (currentProblem) {
+        const problemId = currentProblem.id;
+        
+        if (problemId === 'two-sum') {
+          // Extract the test case input from the description
+          const match = testCase.description.match(/nums = \[([\d,]+)\], target = (\d+)/);
+          if (match) {
+            const numsArray = match[1];
+            const target = match[2];
+            
+            // Based on the language, prepare the code differently
+            if (activeLanguage === 'python') {
+              // Replace any existing print statement with the test-specific one
+              codeToRun = code.replace(
+                /print\(twoSum\(\[.*?\], \d+\)\)/g,
+                `print(twoSum([${numsArray}], ${target}))`
+              );
+              
+              // If no print statement exists, add one at the end
+              if (!codeToRun.includes('print(twoSum(')) {
+                codeToRun += `\n\nprint(twoSum([${numsArray}], ${target}))`;
+              }
+            } else if (activeLanguage === 'quickjs') {
+              codeToRun = code.replace(
+                /console\.log\(twoSum\(\[.*?\], \d+\)\)/g,
+                `console.log(twoSum([${numsArray}], ${target}))`
+              );
+              
+              if (!codeToRun.includes('console.log(twoSum(')) {
+                codeToRun += `\n\nconsole.log(twoSum([${numsArray}], ${target}))`;
+              }
+            } else if (activeLanguage === 'clangpp') {
+              // For C++, we'll need more complex regex to handle the vector initialization
+              codeToRun = code.replace(
+                /std::vector<int> nums = \{.*?\};[\s\S]*?int target = \d+;/g,
+                `std::vector<int> nums = {${numsArray}};\n    int target = ${target};`
+              );
+            }
+          }
+        } else if (problemId === 'valid-parentheses') {
+          // Extract test input from the description
+          const match = testCase.description.match(/s = "([^"]+)"/);
+          if (match) {
+            const input = match[1];
+            
+            // Prepare language-specific code
+            if (activeLanguage === 'python') {
+              codeToRun = code.replace(
+                /print\(isValid\(".*?"\)\)/g,
+                `print(isValid("${input}"))`
+              );
+              
+              if (!codeToRun.includes('print(isValid(')) {
+                codeToRun += `\n\nprint(isValid("${input}"))`;
+              }
+            } else if (activeLanguage === 'quickjs') {
+              codeToRun = code.replace(
+                /console\.log\(isValid\(".*?"\)\)/g,
+                `console.log(isValid("${input}"))`
+              );
+              
+              if (!codeToRun.includes('console.log(isValid(')) {
+                codeToRun += `\n\nconsole.log(isValid("${input}"))`;
+              }
+            } else if (activeLanguage === 'clangpp') {
+              codeToRun = code.replace(
+                /std::cout << \(isValid\(".*?"\)/g,
+                `std::cout << (isValid("${input}")`
+              );
+            }
+          }
+        }
+      }
+      
+      // Run the modified code
       const stdin = testCase.stdin ? testCase.stdin + '\n' : '';
-      const result = await runElement.headlessRunCode("python", code, stdin);
+      const result = await executor(codeToRun, stdin);
       
       // Store the complete result
       setResults(testCase.id, result as CompleteResult);
@@ -91,9 +165,14 @@ export async function checkCode(code: string): Promise<void> {
         });
       }
     }
-  } finally {
-    // Clean up
-    document.body.removeChild(runElement);
+  } catch (error) {
+    console.error("Error running code:", error);
+    // Handle any unexpected errors
+    for (const testCase of testCases) {
+      setTestStatus(testCase.id, 'fail', {
+        message: "An unexpected error occurred while checking your code."
+      });
+    }
   }
 }
 
@@ -104,14 +183,9 @@ export async function checkCode(code: string): Promise<void> {
 export async function checkCppCode(code: string): Promise<void> {
   const { testCases, setTestStatus, setResults } = useRunnoStore.getState();
   
-  const runElement = document.createElement('runno-run') as RunElement;
-  runElement.style.display = 'none';
-  document.body.appendChild(runElement);
-  
   try {
     // First compile the C++ code
-    const compileResult = await runElement.headlessRunCode("clangpp", 
-      `//-compile\n${code}`, "");
+    const compileResult = await headlessRunCode("clangpp", `//-compile\n${code}`);
       
     // Check if compilation succeeded
     if (compileResult.resultType === "complete" && compileResult.exitCode !== 0) {
@@ -134,8 +208,7 @@ export async function checkCppCode(code: string): Promise<void> {
       const stdin = testCase.stdin ? testCase.stdin + '\n' : '';
       
       // In C++ mode, after compilation, we run with the //-run flag
-      const result = await runElement.headlessRunCode("clangpp", 
-        `//-run\n${code}`, stdin);
+      const result = await headlessRunCode("clangpp", `//-run\n${code}`);
       
       setResults(testCase.id, result as CompleteResult);
       
@@ -180,7 +253,13 @@ export async function checkCppCode(code: string): Promise<void> {
         });
       }
     }
-  } finally {
-    document.body.removeChild(runElement);
+  } catch (error) {
+    console.error("Error running C++ code:", error);
+    // Handle any unexpected errors
+    for (const testCase of testCases) {
+      setTestStatus(testCase.id, 'fail', {
+        message: "An unexpected error occurred while checking your code."
+      });
+    }
   }
 }

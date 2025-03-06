@@ -1,4 +1,3 @@
-
 /*
  * Overall Architecture Explanation:
  * 
@@ -25,7 +24,7 @@ import { useRunnoStore } from '@/stores/runno-store';
 import { v4 as uuidv4 } from 'uuid';
 
 export default function CodePlayground() {
-  const { addTestCase } = useRunnoStore();
+  const { addTestCase, setActiveLanguage } = useRunnoStore();
   
   // Initialize test cases when the component mounts
   useEffect(() => {
@@ -53,12 +52,17 @@ export default function CodePlayground() {
     });
   }, [addTestCase]);
   
+  // Handle language change
+  const handleLanguageChange = (value: string) => {
+    setActiveLanguage(value as LanguageKey);
+  };
+  
   return (
     <Container>
       <div className="py-8">
         <h1 className="text-2xl font-bold mb-6">Interactive Code Playground</h1>
         
-        <Tabs defaultValue="python">
+        <Tabs defaultValue="python" onValueChange={handleLanguageChange}>
           <TabsList>
             {Object.entries(supportedLanguages).map(([key, { name }]) => (
               <TabsTrigger key={key} value={key}>{name}</TabsTrigger>

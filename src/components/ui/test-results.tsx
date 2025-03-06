@@ -18,9 +18,16 @@ import { useRunnoStore } from '@/stores/runno-store';
 import { CheckCircleIcon } from 'lucide-react';
 import { useState } from 'react';
 import { checkCode } from '@/lib/runno-headless';
+import { TestCaseState } from '@/stores/runno-store';
 
-function TestResults() {
-  const { testCases, code } = useRunnoStore();
+// Add interface for component props
+interface TestResultsProps {
+  testCases: TestCaseState[];
+}
+
+// Update function signature to accept props
+function TestResults({ testCases }: TestResultsProps) {
+  const { code } = useRunnoStore();
   const [isChecking, setIsChecking] = useState(false);
   
   const handleCheckAll = async () => {
@@ -59,4 +66,4 @@ function TestResults() {
   );
 }
 
-export { TestResults }
+export { TestResults };
